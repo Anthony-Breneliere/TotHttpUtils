@@ -15,6 +15,7 @@ queue:
 variables:
   projectDir: PromConfigClient
   projectPattern: '**/*PromConfigClient.csproj'
+  testPattern: 'Tests/TestPromConfigClient/TestPromConfigClient.csproj'
   nugetFeeds: IMAProtectFeeds
   buildConfiguration: Release
 
@@ -48,7 +49,7 @@ steps:
   displayName: Test
   inputs:
     command: test 
-    projects: $(projectPattern)
+    projects: $(testPattern)
     arguments: '--configuration $(buildConfiguration)'
 
 
