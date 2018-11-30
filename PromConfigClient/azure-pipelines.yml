@@ -42,7 +42,7 @@ steps:
   displayName: Build
   inputs:
     command: build
-    projects: '$(projectFile) $(testProject)'
+    projects: $(projectFile)|$(testProject)
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
@@ -57,7 +57,7 @@ steps:
   displayName: Pack
   inputs:
     command: pack
-    packagesToPack:  '$(projectFile) $(testProject)'     # le projet de test est utile pour les tests
+    packagesToPack: $(projectFile)|$(testProject)     # le projet de test est utile pour les tests
     include-symbols : true
     no-build: true
 
