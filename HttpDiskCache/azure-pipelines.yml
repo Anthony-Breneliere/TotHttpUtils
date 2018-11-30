@@ -15,6 +15,8 @@ queue:
 variables:
   projectDir: HttpDiskCache
   projectFile: $(projectDir)/HttpDiskCache.csproj
+  nugetFeeds: IMAProtectFeeds
+  buildConfiguration: Release
 
 
 trigger:

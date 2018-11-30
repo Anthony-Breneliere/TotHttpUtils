@@ -15,7 +15,8 @@ queue:
 variables:
   projectDir: PromConfigClient
   projectFile: $(projectDir)/PromConfigClient.csproj
-
+  nugetFeeds: IMAProtectFeeds
+  buildConfiguration: Release
 
 trigger:
 
