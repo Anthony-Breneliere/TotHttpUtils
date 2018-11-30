@@ -17,12 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\RobotImage\nlog.config" Link="nlog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.5.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.7.0" />
@@ -50,6 +44,12 @@
     <Compile Update="TestEquipmentRequestHandler.cs">
       <SubType>Component</SubType>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="nlog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
