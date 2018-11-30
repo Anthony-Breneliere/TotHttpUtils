@@ -15,6 +15,7 @@ queue:
 variables:
   projectDir: PromConfigClient
   projectFile: $(projectDir)/PromConfigClient.csproj
+  testProject: Tests/TestPromConfigClient/TestPromConfigClient.csproj
   nugetFeeds: IMAProtectFeeds
   buildConfiguration: Release
 
@@ -41,16 +42,14 @@ steps:
   displayName: Build
   inputs:
     command: build
-    projects: 
-        - $(projectFile)
-        - Tests/**/*.csproj
+    projects: '$(projectFile) $(testProject)'
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
   displayName: Test
   inputs:
     command: test 
-    projects: Tests/**/*.csproj
+    projects: $(testProject)
     arguments: '--configuration $(buildConfiguration)'
 
 
@@ -58,9 +57,7 @@ steps:
   displayName: Pack
   inputs:
     command: pack
-    packagesToPack: 
-        - $(projectFile)
-        - Tests/**/*.csproj     # le projet de test est utile pour les tests
+    packagesToPack:  '$(projectFile) $(testProject)'     # le projet de test est utile pour les tests
     include-symbols : true
     no-build: true
 
