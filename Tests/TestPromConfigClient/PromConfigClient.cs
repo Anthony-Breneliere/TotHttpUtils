@@ -31,7 +31,7 @@ namespace TestPromConfigClient
         public PromConfigClientSuite()
         {
             LogManager.LoadConfiguration("nlog.config");
-
+            /*
             // Ajout du client prom config
             serviceProvider =
                 new ServiceCollection()
@@ -64,7 +64,7 @@ namespace TestPromConfigClient
 
                     .Services
                     .BuildServiceProvider();
-
+*/
             log = serviceProvider.GetService<ILoggerFactory>().CreateLogger<PromConfigClientSuite>();
         }
 
