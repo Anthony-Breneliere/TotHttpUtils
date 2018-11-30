@@ -14,8 +14,7 @@ queue:
 
 variables:
   projectDir: PromConfigClient
-  projectFile: $(projectDir)/PromConfigClient.csproj
-  testProject: Tests/TestPromConfigClient/TestPromConfigClient.csproj
+  projectPattern: **/*PromConfigClient.csproj
   nugetFeeds: IMAProtectFeeds
   buildConfiguration: Release
 
@@ -35,21 +34,21 @@ steps:
   displayName: Restore
   inputs:
     command: restore
-    projects: $(projectFile)
+    projects: $(projectPattern)
     feedRestore: $(nugetFeeds)
 
 - task: DotNetCoreCLI@2
   displayName: Build
   inputs:
     command: build
-    projects: +($(projectFile)|$(testProject))
+    projects: **/*
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
   displayName: Test
   inputs:
     command: test 
-    projects: $(testProject)
+    projects: $(projectPattern)
     arguments: '--configuration $(buildConfiguration)'
 
 
@@ -57,7 +56,7 @@ steps:
   displayName: Pack
   inputs:
     command: pack
-    packagesToPack: +($(projectFile)|$(testProject))     # le projet de test est utile pour les tests
+    packagesToPack: $(projectPattern)     # le projet de test est inclu car contient les handlers http de test
     include-symbols : true
     no-build: true
 
