@@ -71,7 +71,8 @@ namespace HttpDiskCache
             // on lance une tâche de mise à jour du cache dont on n'attend pas la fin
             if (!string.IsNullOrEmpty(messageContent) && null != readFileAsyncTask)
             {
-                Task.Run(() => UpdateCacheIfRequired(fileName, messageContent, readFileAsyncTask));
+                #pragma warning disable CS4014
+                UpdateCacheIfRequired(fileName, messageContent, readFileAsyncTask);
             }
 
             return response;
