@@ -1,0 +1,73 @@
+{
+  "LastUpdatedDate": "20180914",
+  "Scopes": [
+    {
+      "Country": "France",
+      "FirstProm": 11200000,
+      "LastProm": 11499999
+    },
+    {
+      "Country": "Italie",
+      "FirstProm": 31000000,
+      "LastProm": 31099999
+    },
+    {
+      "Country": "Belgique",
+      "FirstProm": 32000000,
+      "LastProm": 32099999
+    },
+    {
+      "Protocol": "ContactId",
+      "Service": "SDE",
+      "FirstProm": 1787,
+      "LastProm": 9798
+    },
+    {
+      "Service": "Serena",
+      "FirstProm": 98000000,
+      "LastProm": 97999999
+    },
+    {
+      "Protocol": "ContactId",
+      "Service": "Actimetry",
+      "FirstProm": 10000100,
+      "LastProm": 10000199
+    },
+    {
+      "Protocol": "ContactId",
+      "Service": "MonitorlinqSupervision",
+      "FirstProm": 10000200,
+      "LastProm": 10000299
+    },
+    {
+      "Service": "Bag",
+      "FirstProm": 10001000,
+      "LastProm": 10001019
+    },
+    {
+      "Service": "TestLife+",
+      "FirstProm": 10001050,
+      "LastProm": 10001109
+    },
+    {
+      "Service": "Test3Pegase",
+      "FirstProm": 10001200,
+      "LastProm": 10001229
+    },
+    {
+      "Service": "TestDomosafety",
+      "FirstProm": 10002000,
+      "LastProm": 10002999
+    },
+    {
+      "Service": "TargaLocationAvis",
+      "FirstProm": 2011871,
+      "LastProm": 2011871
+    },
+    {
+      "Service": "TargaCentreAssistancePreventionVol",
+      "FirstProm": 10001250,
+      "LastProm": 10001250
+    }
+  ]
+}
