@@ -14,7 +14,7 @@ queue:
 
 variables:
   projectDir: PromConfigClient
-  projectPattern: **/*PromConfigClient.csproj
+  projectPattern: '**/*PromConfigClient.csproj'
   nugetFeeds: IMAProtectFeeds
   buildConfiguration: Release
 
@@ -41,7 +41,7 @@ steps:
   displayName: Build
   inputs:
     command: build
-    projects: **/*
+    projects: $(projectPattern)
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
