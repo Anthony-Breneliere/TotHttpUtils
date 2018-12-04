@@ -20,7 +20,7 @@ namespace PromConfigClient
 
         public string EquipmentClientName { get; set; }
 
-        public string EquipmentUri { get; set; }
+        public string EquipmentUri { get; set; } = "http://trucmuche/"; // il en faut une par défaut pour construire HttpRequestMessage
 
         private string promConfigRoute = "/api/prom/promAllocationScopes";
 
@@ -40,7 +40,7 @@ namespace PromConfigClient
         {
             log.LogDebug("Récupération auprès du service Equipment de la configuration des Proms");
 
-            var promConfigUrl = EquipmentUri + promConfigRoute;
+            var promConfigUrl = EquipmentUri ?? "http://trucmuche/" + promConfigRoute;
 
             // construction de la requête
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, promConfigUrl);

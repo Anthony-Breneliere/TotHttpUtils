@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using IMAUtils.Extension;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using Utils;
 
 namespace TestPromConfigClient
@@ -34,11 +36,18 @@ namespace TestPromConfigClient
 
             HttpResponseMessage response = null;
 
-            if (!BlockRequestToNextHandler)
+            if (ReplacedResponseContent == null)
             {
                 log.LogInformation($"Starting request {request.Json()}");
                 log.LogDebug(request.RequestUri.Json());
                 response = await base.SendAsync(request, cancellationToken);
+            }
+            else
+            {
+                response = new HttpResponseMessage(HttpStatusCode.Accepted)
+                {
+                    Content = new StringContent( ReplacedResponseContent.ToString())
+                };
             }
 
             if (CheckResponse != null)
@@ -54,6 +63,6 @@ namespace TestPromConfigClient
 
         public Action<HttpResponseMessage> CheckResponse { get; set; }
 
-        public bool BlockRequestToNextHandler { get; set; }
+        public JToken ReplacedResponseContent { get; set; }
     }
 }

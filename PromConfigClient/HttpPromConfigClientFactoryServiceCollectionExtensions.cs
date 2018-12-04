@@ -12,7 +12,7 @@ namespace PromConfigClient
     {
         public static IHttpClientBuilder AddPromConfigHttpClient(this IServiceCollection services, Action<PromConfigHttpClient> configAction )
         {
-            return  services
+            return services
 
                 // ajout de la gestion d'un message handler de gestion de la cache
                 .AddTransient<CachedRequestHttpHandler>()
@@ -27,10 +27,8 @@ namespace PromConfigClient
                 })
 
                 // un client http
-                .AddHttpClient(typeof(PromConfigHttpClient).Name)
+                .AddHttpClient(typeof(PromConfigHttpClient).Name);
 
-                // le message handler testé
-                .AddHttpMessageHandler<CachedRequestHttpHandler>();
         }
     }
 }

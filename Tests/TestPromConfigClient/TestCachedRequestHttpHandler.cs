@@ -22,13 +22,13 @@ using System.Collections.Generic;
 
 namespace TestPromConfigClient
 {
-    public class PromConfigClientSuite
+    public class TestCachedRequestHttpHandler
     {
         private IServiceProvider serviceProvider;
 
         private ILogger log;
 
-        public PromConfigClientSuite()
+        public TestCachedRequestHttpHandler()
         {
             LogManager.LoadConfiguration("nlog.config");
             
@@ -65,7 +65,7 @@ namespace TestPromConfigClient
                     .Services
                     .BuildServiceProvider();
 
-            log = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<PromConfigClientSuite>();
+            log = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<TestCachedRequestHttpHandler>();
         }
 
         [Fact]
