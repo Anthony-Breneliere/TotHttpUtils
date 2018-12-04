@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>1.0.5</Version>
+    <Version>1.0.6</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HttpDiskCache\HttpDiskCache.csproj" />
+    <ProjectReference Include="..\HttpHandlersTest\HttpHandlersTest.csproj" />
   </ItemGroup>
 
 
