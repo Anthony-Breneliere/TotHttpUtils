@@ -34,13 +34,6 @@
     <ProjectReference Include="..\..\PromConfigClient\PromConfigClient.csproj" />
   </ItemGroup>
 
-
-  <ItemGroup>
-    <Compile Update="TestEquipmentRequestHandler.cs">
-      <SubType>Component</SubType>
-    </Compile>
-  </ItemGroup>
-
   <ItemGroup>
     <None Update="nlog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
