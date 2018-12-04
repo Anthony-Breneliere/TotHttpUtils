@@ -19,6 +19,7 @@ using HttpDiskCache;
 using Newtonsoft.Json;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 using System.Collections.Generic;
+using HttpHandlersTest;
 using Newtonsoft.Json.Linq;
 
 namespace TestPromConfigClient
@@ -40,12 +41,12 @@ namespace TestPromConfigClient
                     .AddLogging(lb => { lb.AddNLog().SetMinimumLevel( LogLevel.Trace); })
 
                     // ajout du messages handler qui intercepte les appels 
-                    .AddScoped<EquipmentHttpStub>()
+                    .AddScoped<HttpHandlerStub>()
 
                     .AddPromConfigHttpClient(clientEquip => {}) 
 
                     // le http handler qui intercepte les appels
-                    .AddHttpMessageHandler<EquipmentHttpStub>()
+                    .AddHttpMessageHandler<HttpHandlerStub>()
 
                     .Services
                     .BuildServiceProvider();
@@ -64,7 +65,7 @@ namespace TestPromConfigClient
             };
 
 
-            serviceProvider.GetService<EquipmentHttpStub>().ReplacedResponseContent = JArray.FromObject( promScopeList );
+            serviceProvider.GetService<HttpHandlerStub>().ReplacedResponseContent = JArray.FromObject( promScopeList );
                 
             // act
             var promConfigGet = await serviceProvider.GetService<PromConfigHttpClient>().PromConfig();

@@ -19,6 +19,7 @@ using HttpDiskCache;
 using Newtonsoft.Json;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 using System.Collections.Generic;
+using HttpHandlersTest;
 
 namespace TestPromConfigClient
 {
@@ -39,7 +40,7 @@ namespace TestPromConfigClient
                     .AddLogging(lb => { lb.AddNLog().SetMinimumLevel( LogLevel.Trace); })
 
                     // ajout du messages handler qui intercepte les appels 
-                    .AddScoped<EquipmentHttpStub>()
+                    .AddScoped<HttpHandlerCheck>()
 
                     // ajout du messages handler de cache pour la mise en cache
                     .AddTransient<CachedRequestHttpHandler>()
@@ -57,7 +58,7 @@ namespace TestPromConfigClient
                     .AddHttpClient(typeof(PromConfigHttpClient).Name)
 
                     // le http handler qui intercepte les appels
-                    .AddHttpMessageHandler<EquipmentHttpStub>()
+                    .AddHttpMessageHandler<HttpHandlerCheck>()
 
                     // le message handler testé
                     .AddHttpMessageHandler<CachedRequestHttpHandler>()
@@ -78,12 +79,12 @@ namespace TestPromConfigClient
                 new PromScope {Country = "It", FirstProm = 2000, LastProm = 2100}
             };
 
-            serviceProvider.GetService<EquipmentHttpStub>().CheckRequest = message =>
+            serviceProvider.GetService<HttpHandlerCheck>().CheckRequest = message =>
             {
                 Assert.Equal("http://urldetest//api/prom/promAllocationScopes", message.RequestUri.ToString() );
             };
 
-            serviceProvider.GetService<EquipmentHttpStub>().CheckResponse = async message =>
+            serviceProvider.GetService<HttpHandlerCheck>().CheckResponse = async message =>
             {
                 var content = await message.Content.ReadAsStringAsync();
                 JsonConvert.DeserializeObject<IEnumerable<PromScope>>(content).Should().BeEquivalentTo(promScopeList);

@@ -12,18 +12,18 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Utils;
 
-namespace TestPromConfigClient
+namespace HttpHandlersTest
 {
     /// <summary>
     /// Bouchon d'accès au service équipement
     /// </summary>
-    public class EquipmentHttpStub : DelegatingHandler
+    public class HttpHandlerCheck : DelegatingHandler
     {
         private static ILogger log;
 
-        public EquipmentHttpStub(ILoggerFactory lf)
+        public HttpHandlerCheck(ILoggerFactory lf)
         {
-            log = lf.CreateLogger(typeof(EquipmentHttpStub).FullName);
+            log = lf.CreateLogger(typeof(HttpHandlerCheck).FullName);
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -35,20 +35,11 @@ namespace TestPromConfigClient
             }
 
             HttpResponseMessage response = null;
+            
+            log.LogInformation($"Starting request {request.Json()}");
+            log.LogDebug(request.RequestUri.Json());
+            response = await base.SendAsync(request, cancellationToken);
 
-            if (ReplacedResponseContent == null)
-            {
-                log.LogInformation($"Starting request {request.Json()}");
-                log.LogDebug(request.RequestUri.Json());
-                response = await base.SendAsync(request, cancellationToken);
-            }
-            else
-            {
-                response = new HttpResponseMessage(HttpStatusCode.Accepted)
-                {
-                    Content = new StringContent( ReplacedResponseContent.ToString())
-                };
-            }
 
             if (CheckResponse != null)
             {
@@ -63,6 +54,5 @@ namespace TestPromConfigClient
 
         public Action<HttpResponseMessage> CheckResponse { get; set; }
 
-        public JToken ReplacedResponseContent { get; set; }
     }
 }

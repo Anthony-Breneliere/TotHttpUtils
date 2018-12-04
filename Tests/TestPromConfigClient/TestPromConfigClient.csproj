@@ -31,6 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\HttpHandlersTest\HttpHandlersTest.csproj" />
     <ProjectReference Include="..\..\PromConfigClient\PromConfigClient.csproj" />
   </ItemGroup>
 
