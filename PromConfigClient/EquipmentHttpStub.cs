@@ -12,13 +12,16 @@ using Utils;
 
 namespace TestPromConfigClient
 {
-    public class TestEquipmentRequestHandler : DelegatingHandler
+    /// <summary>
+    /// Bouchon d'accès au service équipement
+    /// </summary>
+    public class EquipmentHttpStub : DelegatingHandler
     {
         private static ILogger log;
 
-        public TestEquipmentRequestHandler(ILoggerFactory lf)
+        public EquipmentHttpStub(ILoggerFactory lf)
         {
-            log = lf.CreateLogger(typeof(TestEquipmentRequestHandler).FullName);
+            log = lf.CreateLogger(typeof(EquipmentHttpStub).FullName);
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)

@@ -39,14 +39,14 @@ namespace TestPromConfigClient
                     .AddLogging(lb => { lb.AddNLog().SetMinimumLevel( LogLevel.Trace); })
 
                     // ajout du messages handler qui intercepte les appels 
-                    .AddScoped<TestEquipmentRequestHandler>()
+                    .AddScoped<EquipmentHttpStub>()
 
                     // ajout du messages handler de cache pour la mise en cache
                     .AddTransient<CachedRequestHttpHandler>()
                     .AddTransient<ICache, FileCache>()
 
                     // un client http
-                    .AddScoped<PromConfigHttpClient>(sp =>
+                    .AddTransient<PromConfigHttpClient>(sp =>
                     {
                         return new PromConfigHttpClient(sp.GetService<IHttpClientFactory>(), sp.GetService<ILoggerFactory>())
                         {
@@ -57,7 +57,7 @@ namespace TestPromConfigClient
                     .AddHttpClient(typeof(PromConfigHttpClient).Name)
 
                     // le http handler qui intercepte les appels
-                    .AddHttpMessageHandler<TestEquipmentRequestHandler>()
+                    .AddHttpMessageHandler<EquipmentHttpStub>()
 
                     // le message handler testé
                     .AddHttpMessageHandler<CachedRequestHttpHandler>()
@@ -78,12 +78,12 @@ namespace TestPromConfigClient
                 new PromScope {Country = "It", FirstProm = 2000, LastProm = 2100}
             };
 
-            serviceProvider.GetService<TestEquipmentRequestHandler>().CheckRequest = message =>
+            serviceProvider.GetService<EquipmentHttpStub>().CheckRequest = message =>
             {
                 Assert.Equal("http://urldetest//api/prom/promAllocationScopes", message.RequestUri.ToString() );
             };
 
-            serviceProvider.GetService<TestEquipmentRequestHandler>().CheckResponse = async message =>
+            serviceProvider.GetService<EquipmentHttpStub>().CheckResponse = async message =>
             {
                 var content = await message.Content.ReadAsStringAsync();
                 JsonConvert.DeserializeObject<IEnumerable<PromScope>>(content).Should().BeEquivalentTo(promScopeList);
