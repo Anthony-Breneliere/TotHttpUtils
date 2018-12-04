@@ -19,7 +19,7 @@ namespace PromConfigClient
                 .AddTransient<ICache, FileCache>()
 
                 // le client d'accès à la configuration des proms
-                .AddScoped<PromConfigHttpClient>(sp =>
+                .AddTransient<PromConfigHttpClient>(sp =>
                 {
                     var newPromConfigClient = new PromConfigHttpClient(sp.GetService<IHttpClientFactory>(), sp.GetService<ILoggerFactory>());
                     configAction(newPromConfigClient);

@@ -65,7 +65,7 @@ namespace TestPromConfigClient
                     .Services
                     .BuildServiceProvider();
 
-            log = serviceProvider.GetService<ILoggerFactory>().CreateLogger<PromConfigClientSuite>();
+            log = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<PromConfigClientSuite>();
         }
 
         [Fact]
