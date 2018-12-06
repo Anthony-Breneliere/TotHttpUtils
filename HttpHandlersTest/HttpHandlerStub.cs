@@ -92,7 +92,7 @@ namespace HttpHandlersTest
                     {
                         response = new HttpResponseMessage()
                         {
-                            Content = new StringContent(foundRule.ResponseMessage.Content),
+                            Content = new StringContent(foundRule.ResponseMessage.Content ?? ""),
                             StatusCode = foundRule.ResponseMessage.StatusCode
                         };
 

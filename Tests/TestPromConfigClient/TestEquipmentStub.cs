@@ -37,6 +37,8 @@ namespace TestPromConfigClient
 
         private readonly List<RequestResponseRule> _basicResponseRule;
 
+        private readonly List<RequestResponseRule> _justeOneRequest;
+
         public TestHttpStubResponseFile()
         {
             LogManager.LoadConfiguration("nlog.config");
@@ -61,6 +63,15 @@ namespace TestPromConfigClient
             log = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<TestCachedRequestHttpHandler>();
 
 
+            _justeOneRequest = new List<RequestResponseRule>
+            {
+                new RequestResponseRule()
+                {
+                    RequestPathAndQuery = "quune/requete",
+                    ResponseMessage = new HttpResponse() { StatusCode = HttpStatusCode.OK }
+                }
+            };
+                
             _regexResponseRule = new List<RequestResponseRule>
             {
                 new RequestResponseRule
@@ -102,6 +113,22 @@ namespace TestPromConfigClient
                     ResponseMessage = new HttpResponse() {Content = "Ca sent le poisson", StatusCode = HttpStatusCode.Accepted}
                 }
             };
+        }
+
+
+        [Fact]
+        public async Task TestJustRequestUri()
+        {
+            // arrange
+            var httpClientToto = serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("Toto");
+            var httpStub = serviceProvider.GetRequiredService<HttpHandlerStub>();
+            httpStub.ResponseRules = _justeOneRequest;
+
+            // act
+            var response = await httpClientToto.GetAsync("http://lolololocalhost:654/ya/quune/requete/mon/pote");
+
+            // assert
+            response.StatusCode.Should().Be(httpStub.ResponseRules[0].ResponseMessage.StatusCode);
         }
 
 

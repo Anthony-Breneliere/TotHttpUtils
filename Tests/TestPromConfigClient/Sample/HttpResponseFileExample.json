@@ -1,11 +1,16 @@
 ﻿[
   /* Les règles sont prises dans l'ordre pour filtrer un message. La première règle qui matche une requête est prise en priorité */
 
-    {
-      /* RequestPathAndQuery: une partie de l'URI de la requete permet de matcher la règle */
-      "RequestPathAndQuery": "recherche/trouve"
+  {
+    /* RequestPathAndQuery: une partie de l'URI de la requete permet de matcher la règle */
+    "RequestPathAndQuery": "envoie/moi/une/erreur/500",
 
-    },
+    "ResponseMessage": {
+      "StatusCode": 500
+    }
+
+
+  },
 
     {
       /* RequestPathAndQuery: une partie de l'URI de la requete permet de matcher la règle */
