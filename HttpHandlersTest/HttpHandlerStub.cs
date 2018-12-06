@@ -20,6 +20,9 @@ namespace HttpHandlersTest
 {
     /// <summary>
     /// Bouchon d'accès au service équipement
+    /// Pour qu'il soit actif, une des propriétés suivantes doivent être renseignées:
+    /// - ResponseJsonFile : chemin vers le fichier de config (les changement du fichier sont observés)
+    /// - ResponseRules : règles de réponses aux requêtes (automatiquement défini si un ResponseJsonFile est fourni)
     /// </summary>
     public class HttpHandlerStub : DelegatingHandler
     {
@@ -83,10 +86,8 @@ namespace HttpHandlersTest
                 if (foundRule != null )
                 {
                     if (foundRule.ResponseMessage == null)
-                    {
                         log.LogWarning($"Une règle a été trouvée {foundRule.Json()}, mais aucune réponse n'est définie dans cette règle dans le fichier {_responseJsonFile}");
-                        response = await base.SendAsync(request, cancellationToken);
-                    }
+
                     else
                     {
                         response = new HttpResponseMessage()
@@ -99,10 +100,18 @@ namespace HttpHandlersTest
                     }
                     
                 }
-                else
+
+                // si aucune réponse n'a été créé pour ce bouchon on fait appel au service pour obtenir une réponse
+                if (response == null)
                 {
+                    log.LogDebug( $"Pas de règle définie pour cette requetee, passage de la requête sur le handler suivant:\n{request}:" );
+                    log.LogDebug( await request.Content.ReadAsStringAsync() );
+
                     response = await base.SendAsync(request, cancellationToken);
                 }
+
+
+
             }
 
 

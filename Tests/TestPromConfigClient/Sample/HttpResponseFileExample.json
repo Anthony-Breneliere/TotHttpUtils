@@ -1,66 +1,82 @@
 ﻿[
-  {
-    "RequestPathAndQuery": "recherche/trouve",
-    "RequestIsRegex": false,
-    "RequestMessage": {
-      "Message": null,
-      "Methods": [
-        {
-          "Method": "PUT"
-        }
-      ]
+  /* Les règles sont prises dans l'ordre pour filtrer un message. La première règle qui matche une requête est prise en priorité */
+
+    {
+      /* RequestPathAndQuery: une partie de l'URI de la requete permet de matcher la règle */
+      "RequestPathAndQuery": "recherche/trouve"
+
     },
-    "ResponseMessage": {
-      "Content": "Ne faites rien",
-      "StatusCode": 202
-    }
-  },
-  {
-    "RequestPathAndQuery": "recherche/trouve",
-    "RequestIsRegex": false,
-    "RequestMessage": {
-      "Message": "{\r\n  \"message\": \"Ce message est doit être identique dans la règle.\"\r\n}",
-      "Methods": null
+
+    {
+      /* RequestPathAndQuery: une partie de l'URI de la requete permet de matcher la règle */
+      "RequestPathAndQuery": "recherche/trouve",
+
+      /* RequestIsRegex: permet de renseigner une expression régulière dans le champ RequestPathAndQuery */
+      "RequestIsRegex": false,
+
+      /* RequestMessage: si défini le message doit être égal au content de la requête
+     Les messages en json sont parsés avant d'être comparées. */
+      "RequestMessage": {
+        "Message": null,
+        "Methods": [
+          {
+            "Method": "PUT"
+          }
+        ]
+      },
+
+      /* RequestMessage: réponse retournée en cas de match de la requete, avec le code status */
+      "ResponseMessage": {
+        "Content": "Ne faites rien",
+        "StatusCode": 202
+      }
     },
-    "ResponseMessage": {
-      "Content": "Ne faites rien",
-      "StatusCode": 202
+    {
+      "RequestPathAndQuery": "recherche/trouve",
+      "RequestIsRegex": false,
+      "RequestMessage": {
+        "Message": "{\r\n  \"message\": \"Ce message est doit être identique dans la règle.\"\r\n}",
+        "Methods": null
+      },
+      "ResponseMessage": {
+        "Content": "Ne faites rien",
+        "StatusCode": 202
+      }
+    },
+    {
+      "RequestPathAndQuery": "recherche/trouve/recherche/trouve",
+      "RequestIsRegex": false,
+      "RequestMessage": null,
+      "ResponseMessage": {
+        "Content": "Lavez-vous la bouche merci bien",
+        "StatusCode": 202
+      }
+    },
+    {
+      "RequestPathAndQuery": "ca/vous/en/bouche/un/couin",
+      "RequestIsRegex": false,
+      "RequestMessage": null,
+      "ResponseMessage": {
+        "Content": "Ca sent le poisson",
+        "StatusCode": 202
+      }
+    },
+    {
+      "RequestPathAndQuery": ".*/pascelui/la",
+      "RequestIsRegex": true,
+      "RequestMessage": null,
+      "ResponseMessage": {
+        "Content": "Ne faites rien",
+        "StatusCode": 300
+      }
+    },
+    {
+      "RequestPathAndQuery": ".*/ca/vous/en/bouche/un/couin\\?rire=sansdent",
+      "RequestIsRegex": true,
+      "RequestMessage": null,
+      "ResponseMessage": {
+        "Content": "Lavez-vous la bouche merci bien",
+        "StatusCode": 202
+      }
     }
-  },
-  {
-    "RequestPathAndQuery": "recherche/trouve/recherche/trouve",
-    "RequestIsRegex": false,
-    "RequestMessage": null,
-    "ResponseMessage": {
-      "Content": "Lavez-vous la bouche merci bien",
-      "StatusCode": 202
-    }
-  },
-  {
-    "RequestPathAndQuery": "ca/vous/en/bouche/un/couin",
-    "RequestIsRegex": false,
-    "RequestMessage": null,
-    "ResponseMessage": {
-      "Content": "Ca sent le poisson",
-      "StatusCode": 202
-    }
-  },
-  {
-    "RequestPathAndQuery": ".*/pascelui/la",
-    "RequestIsRegex": true,
-    "RequestMessage": null,
-    "ResponseMessage": {
-      "Content": "Ne faites rien",
-      "StatusCode": 300
-    }
-  },
-  {
-    "RequestPathAndQuery": ".*/ca/vous/en/bouche/un/couin\\?rire=sansdent",
-    "RequestIsRegex": true,
-    "RequestMessage": null,
-    "ResponseMessage": {
-      "Content": "Lavez-vous la bouche merci bien",
-      "StatusCode": 202
-    }
-  }
-] 
+    ] 
