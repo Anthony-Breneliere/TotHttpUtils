@@ -24,7 +24,7 @@ namespace HttpHandlersTest
         /// <summary>
         /// Message de la règle
         /// </summary>
-        public string RequestMessage { get; set; }
+        public SimpleHttpRequest RequestMessage { get; set; }
 
         /// <summary>
         /// Réponse à retourner

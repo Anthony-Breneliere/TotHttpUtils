@@ -33,15 +33,19 @@ namespace TestPromConfigClient
 
         private ILogger log;
 
+        private readonly List<RequestResponseRule> _regexResponseRule;
+
+        private readonly List<RequestResponseRule> _basicResponseRule;
+
         public TestHttpStubResponseFile()
         {
             LogManager.LoadConfiguration("nlog.config");
-            
+
             // Ajout du client prom config
             serviceProvider =
                 new ServiceCollection()
 
-                    .AddLogging(lb => { lb.AddNLog().SetMinimumLevel( LogLevel.Trace); })
+                    .AddLogging(lb => { lb.AddNLog().SetMinimumLevel(LogLevel.Trace); })
 
                     // ajout du messages handler qui intercepte les appels 
                     .AddSingleton<HttpHandlerStub>()
@@ -55,62 +59,128 @@ namespace TestPromConfigClient
                     .BuildServiceProvider();
 
             log = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<TestCachedRequestHttpHandler>();
+
+
+            _regexResponseRule = new List<RequestResponseRule>
+            {
+                new RequestResponseRule
+                {
+                    RequestPathAndQuery = @".*/pascelui/la",
+                    RequestIsRegex = true,
+                    ResponseMessage = new HttpResponse() {Content = "Ne faites rien", StatusCode = HttpStatusCode.Ambiguous}
+                },
+
+                new RequestResponseRule
+                {
+                    RequestPathAndQuery = @".*/ca/vous/en/bouche/un/couin\?rire=sansdent",
+                    RequestIsRegex = true,
+                    ResponseMessage = new HttpResponse() {Content = "Lavez-vous la bouche merci bien", StatusCode = HttpStatusCode.Accepted}
+                }
+            };
+
+
+            _basicResponseRule = new List<RequestResponseRule>
+            {
+                new RequestResponseRule
+                {
+                    RequestPathAndQuery = @"recherche/trouve",
+                    RequestIsRegex = false,
+                    ResponseMessage = new HttpResponse() {Content = "Ne faites rien", StatusCode = HttpStatusCode.Accepted}
+                },
+
+                new RequestResponseRule
+                {
+                    RequestPathAndQuery = @"recherche/trouve/recherche/trouve",
+                    RequestIsRegex = false,
+                    ResponseMessage = new HttpResponse() {Content = "Lavez-vous la bouche merci bien", StatusCode = HttpStatusCode.Accepted}
+                },
+
+                new RequestResponseRule
+                {
+                    RequestPathAndQuery = @"ca/vous/en/bouche/un/couin",
+                    RequestIsRegex = false,
+                    ResponseMessage = new HttpResponse() {Content = "Ca sent le poisson", StatusCode = HttpStatusCode.Accepted}
+                }
+            };
         }
 
 
-        private static List<RequestResponseRule> regexResponseRule = new List<RequestResponseRule>()
+        [Fact]
+        public async Task TestBasicResponseRules()
         {
-            new RequestResponseRule()
-            {
-                RequestPathAndQuery = @".*/pascelui/la",
-                RequestIsRegex = true,
-                ResponseMessage = new HttpResponse() { Content = "Ne faites rien", StatusCode = HttpStatusCode.Ambiguous }
-            },
+            // arrange
+            var httpClientToto = serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("Toto");
+            var httpStub = serviceProvider.GetRequiredService<HttpHandlerStub>();
+            httpStub.ResponseRules = _basicResponseRule;
 
-            new RequestResponseRule()
-            {
-                RequestPathAndQuery = @".*/ca/vous/en/bouche/un/couin\?rire=sansdent",
-                RequestIsRegex = true,
-                ResponseMessage = new HttpResponse() { Content = "Lavez-vous la bouche merci bien", StatusCode = HttpStatusCode.Accepted } 
-            }
-        };
+            // act
+            var response = await httpClientToto.GetStringAsync("http://lolololocalhost:654/recherche/trouve/rien");
+
+            // assert
+            response.Should().Be(httpStub.ResponseRules[0].ResponseMessage.Content);
+        }
 
 
-        private static List<RequestResponseRule> basicResponseRule = new List<RequestResponseRule>()
+        [Fact]
+        public async Task TestBasicResponseRulesWithBadMethod()
         {
-            new RequestResponseRule()
-            {
-                RequestPathAndQuery = @"recherche/trouve",
-                RequestIsRegex = false,
-                ResponseMessage = new HttpResponse() { Content = "Ne faites rien", StatusCode = HttpStatusCode.Accepted }
-            },
+            // arrange
+            var httpClientToto = serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("Toto");
+            var httpStub = serviceProvider.GetRequiredService<HttpHandlerStub>();
+            httpStub.ResponseRules = _basicResponseRule;
+            // la règle n'accepte que les message PUT
+            httpStub.ResponseRules[0].RequestMessage = new SimpleHttpRequest() { Methods = new[] {HttpMethod.Put} };
 
-            new RequestResponseRule()
-            {
-                RequestPathAndQuery = @"recherche/trouve/recherche/trouve",
-                RequestIsRegex = false,
-                ResponseMessage = new HttpResponse() { Content = "Lavez-vous la bouche merci bien", StatusCode = HttpStatusCode.Accepted }
-            },
+            // act
+            Func<Task<string>> action = async () => await httpClientToto.GetStringAsync("http://lolololocalhost:654/recherche/trouve/rien");
 
-            new RequestResponseRule()
-            {
-                RequestPathAndQuery = @"ca/vous/en/bouche/un/couin",
-                RequestIsRegex = false,
-                ResponseMessage = new HttpResponse() { Content = "Ca sent le poisson", StatusCode = HttpStatusCode.Accepted }
-            }
-        };
+            // assert
+            await Assert.ThrowsAsync<HttpRequestException>( action );
+        }
+
+        [Fact]
+        public async Task TestBasicResponseRulesWithRequest()
+        {
+            // arrange
+            var httpClientToto = serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("Toto");
+            var httpStub = serviceProvider.GetRequiredService<HttpHandlerStub>();
+            httpStub.ResponseRules = _basicResponseRule;
+            var messageRule = new JObject {["message"] = "Ce message est doit être identique dans la règle."};
+            httpStub.ResponseRules[0].RequestMessage = new SimpleHttpRequest() { Message = messageRule.ToString() };
+            log.LogDebug(httpStub.ResponseRules.Json());
+
+
+
+            // act
+            Func<Task<HttpResponseMessage>> postBad = async () => await httpClientToto.PostAsync("http://lolololocalhost:654/recherche/trouve/rien", new StringContent(""));
+
+            // assert
+            await Assert.ThrowsAsync<HttpRequestException>(postBad);
+
+            // act => cette fois avec le bon message dans la requête post
+            var postGood = httpClientToto.PostAsync("http://lolololocalhost:654/recherche/trouve/rien",
+                new StringContent(messageRule.ToString()));
+            var response = await (await postGood).Content.ReadAsStringAsync();
+
+            // assert
+            response.Should().Be(httpStub.ResponseRules[0].ResponseMessage.Content);
+
+        }
+
 
 
         [Fact]
         public async Task TestRegexResponseRules()
         {
-            // prepare
+            // arrange
             var httpClientToto = serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("Toto");
             var httpStub = serviceProvider.GetRequiredService<HttpHandlerStub>();
+            httpStub.ResponseRules = _regexResponseRule;
 
-            httpStub.ResponseRules = regexResponseRule;
+            // act
             var response = await httpClientToto.GetStringAsync("https://lolololocalhost:654/ca/vous/en/bouche/un/couin?rire=sansdent");
 
+            // assert
             response.Should().Be(httpStub.ResponseRules[1].ResponseMessage.Content);
         }
 
@@ -119,44 +189,55 @@ namespace TestPromConfigClient
         [Fact]
         public async Task TestBasicResponseFile()
         {
-            // prepare
+            // arrange
             var httpClientToto = serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("Toto");
             var httpStub = serviceProvider.GetRequiredService<HttpHandlerStub>();
-
-            File.WriteAllText( "Equipementrules.json", basicResponseRule.Json() );
-
+            File.WriteAllText("Equipementrules.json", _basicResponseRule.Json());
             httpStub.ResponseJsonFile = "Equipementrules.json";
 
+            // act
             var response = await httpClientToto.GetStringAsync("http://lolololocalhost:654/recherche/trouve/rien");
 
+            // assert
             response.Should().Be(httpStub.ResponseRules[0].ResponseMessage.Content);
-
         }
 
 
+
         [Fact]
-        public async Task TestResponseFileUpdate()
+        public async Task TestResponseFileWatch()
         {
-            // prepare
+            // arrange
             var httpClientToto = serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("Toto");
             var httpStub = serviceProvider.GetRequiredService<HttpHandlerStub>();
 
-            File.WriteAllText("Equipementrules.json", regexResponseRule.Json());
+            File.WriteAllText("Equipementrules.json", _regexResponseRule.Json());
             httpStub.ResponseJsonFile = "Equipementrules.json";
 
             var requeteUri = "https://lolololocalhost:654/ca/vous/en/bouche/un/couin?rire=sansdent";
 
+            // act
             var response = await httpClientToto.GetStringAsync(requeteUri);
-            response.Should().Be(regexResponseRule[1].ResponseMessage.Content);
+
+            // assert
+            response.Should().Be(_regexResponseRule[1].ResponseMessage.Content);
+
+            // arrange
 
             // écriture du fichier pour mettre à jour les règles
-            File.WriteAllText("Equipementrules.json", basicResponseRule.Json());
+            File.WriteAllText("Equipementrules.json", _basicResponseRule.Json());
 
             // attente car on ne gouverne pas l'attente du file watch
-            Thread.Sleep(500);
+            await Task.Delay( 500 );
 
+            // act
             response = await httpClientToto.GetStringAsync(requeteUri);
-            response.Should().Be(basicResponseRule[2].ResponseMessage.Content);
+
+            // assert
+            response.Should().Be(_basicResponseRule[2].ResponseMessage.Content);
         }
+
+
+
     }
 }

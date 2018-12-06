@@ -70,7 +70,7 @@ namespace TestPromConfigClient
             {
                 new RequestResponseRule()
                 {
-                    ResponseMessage = new HttpResponse() { Content = promScopeList.JsonFlat(), StatusCode = HttpStatusCode.Accepted }
+                    ResponseMessage = new HttpResponse() {Content = promScopeList.JsonFlat(), StatusCode = HttpStatusCode.Accepted}
                 }
             };
 
@@ -79,7 +79,12 @@ namespace TestPromConfigClient
 
             // check
             promConfigGet.Should().BeEquivalentTo(promScopeList);
+
         }
+
+
+
+
 
 
     }

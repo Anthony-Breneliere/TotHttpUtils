@@ -47,7 +47,6 @@ namespace HttpHandlersTest
                 RequestResponseRule foundRule = null;
 
                 var uriPathAndQuery = request.RequestUri.PathAndQuery;
-                var requestMessage = request.Content != null ? await request.Content.ReadAsStringAsync() : null;
 
                 // recherche d'un règle correspondant à la requete
                 using (var ruleEnum = ResponseRules.GetEnumerator())
@@ -67,24 +66,38 @@ namespace HttpHandlersTest
                     else if (uriPathAndQuery.Contains(rule.RequestPathAndQuery))
                         foundRule = rule;
 
-                    // si un message est défini dans la règle mais que le message de la requete ne correspond pas
-                    // la règle ne s'aplique pas
-                    if (!string.IsNullOrEmpty(requestMessage) && !string.IsNullOrEmpty(rule.RequestMessage))
-                        if (requestMessage != rule.RequestMessage)
-                            foundRule = null;
 
-                } 
+                    // dans le cas où un message est défini 
 
-
-                if (foundRule != null)
-                {
-                    response = new HttpResponseMessage()
+                    if (!string.IsNullOrEmpty(rule.RequestMessage?.Message))
                     {
-                        Content = new StringContent(foundRule.ResponseMessage.Content),
-                        StatusCode = foundRule.ResponseMessage.StatusCode
-                    };
+                        var requestMessage = request.Content != null ? await request.Content.ReadAsStringAsync() : null;
+                        foundRule = CompareMessages(requestMessage, rule.RequestMessage.Message) ? rule : null;
+                    }
 
-                    log.LogDebug($"Stub returning Http response message from file {_responseJsonFile}, rule {foundRule.Json()}");
+                    // on vérifie que la règle s'applique à la méthode http
+                    if (foundRule != null && rule.RequestMessage?.Methods != null && rule.RequestMessage.Methods.Any() && !rule.RequestMessage.Methods.Contains(request.Method))
+                        foundRule = null;
+                }
+
+                if (foundRule != null )
+                {
+                    if (foundRule.ResponseMessage == null)
+                    {
+                        log.LogWarning($"Une règle a été trouvée {foundRule.Json()}, mais aucune réponse n'est définie dans cette règle dans le fichier {_responseJsonFile}");
+                        response = await base.SendAsync(request, cancellationToken);
+                    }
+                    else
+                    {
+                        response = new HttpResponseMessage()
+                        {
+                            Content = new StringContent(foundRule.ResponseMessage.Content),
+                            StatusCode = foundRule.ResponseMessage.StatusCode
+                        };
+
+                        log.LogDebug($"Stub returning Http response message from file {_responseJsonFile}, rule {foundRule.Json()}");
+                    }
+                    
                 }
                 else
                 {
@@ -94,6 +107,22 @@ namespace HttpHandlersTest
 
 
             return response;
+        }
+
+        private static bool CompareMessages(string requestMessage, string ruleMessage)
+        {
+            JToken jsonRequest, jsonRule;
+            try
+            {
+                jsonRequest = JToken.Parse(requestMessage);
+                jsonRule = JToken.Parse(ruleMessage);
+            }
+            catch (JsonReaderException e)
+            {
+                return requestMessage == ruleMessage;
+            }
+
+            return JToken.DeepEquals(jsonRequest, jsonRule);
         }
 
 
