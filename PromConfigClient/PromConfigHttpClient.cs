@@ -58,11 +58,19 @@ namespace PromConfigClient
                 throw new Exception($"Erreur lors de l'appel à l'url {promConfigUrl}", e);
             }
 
-            // parsing de la réponse
-            var json = await response.Content.ReadAsStringAsync();
-            var promConfiguration = JsonConvert.DeserializeObject<List<PromScope>>(json);
+            IEnumerable<PromScope> promConfiguration = null;
 
-            log.LogInformation($"Chargement de la configuration du service équipement:\n{promConfiguration.Json()}");
+            // parsing de la réponse
+            if (null != response.Content)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                if (!string.IsNullOrEmpty(json))
+                {
+                    promConfiguration = JsonConvert.DeserializeObject<List<PromScope>>(json);
+                    log.LogInformation($"Chargement de la configuration du service équipement:\n{promConfiguration.Json()}");
+                }
+
+            }
 
             return promConfiguration;
         }
