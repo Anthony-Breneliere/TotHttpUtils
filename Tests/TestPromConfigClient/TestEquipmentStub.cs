@@ -238,8 +238,8 @@ namespace TestPromConfigClient
             var httpClientToto = serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("Toto");
             var httpStub = serviceProvider.GetRequiredService<HttpHandlerStub>();
 
-            File.WriteAllText("Equipementrules.json", _regexResponseRule.Json());
-            httpStub.ResponseJsonFile = "Equipementrules.json";
+            File.WriteAllText("EquipementrulesWatch.json", _regexResponseRule.Json());
+            httpStub.ResponseJsonFile = "EquipementrulesWatch.json";
 
             var requeteUri = "https://lolololocalhost:654/ca/vous/en/bouche/un/couin?rire=sansdent";
 
@@ -252,7 +252,7 @@ namespace TestPromConfigClient
             // arrange
 
             // écriture du fichier pour mettre à jour les règles
-            File.WriteAllText("Equipementrules.json", _basicResponseRule.Json());
+            File.WriteAllText("EquipementrulesWatch.json", _basicResponseRule.Json());
 
             // attente car on ne gouverne pas l'attente du file watch
             await Task.Delay( 500 );

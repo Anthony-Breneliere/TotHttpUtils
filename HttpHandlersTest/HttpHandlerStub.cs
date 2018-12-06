@@ -213,5 +213,15 @@ namespace HttpHandlersTest
             }
         }
 
+
+
+        protected override void Dispose(bool disposing)
+        {
+            if (this._watcher != null)
+                _watcher.EnableRaisingEvents = false;
+
+            base.Dispose();
+        }
     }
+
 }
