@@ -104,8 +104,9 @@ namespace HttpHandlersTest
                 // si aucune réponse n'a été créé pour ce bouchon on fait appel au service pour obtenir une réponse
                 if (response == null)
                 {
-                    log.LogDebug( $"Pas de règle définie pour cette requetee, passage de la requête sur le handler suivant:\n{request}:" );
-                    log.LogDebug( await request.Content.ReadAsStringAsync() );
+                    log.LogDebug( $"Pas de règle définie pour cette requête, passage de la requête sur le handler suivant:\n{request}:" );
+                    if (request.Content != null)
+                        log.LogDebug( await request.Content.ReadAsStringAsync() );
 
                     response = await base.SendAsync(request, cancellationToken);
                 }

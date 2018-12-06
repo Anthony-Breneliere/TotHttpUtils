@@ -17,6 +17,7 @@ variables:
   projectFile: $(projectDir)/HttpHandlersTest.csproj
   nugetFeeds: IMAProtectFeeds
   buildConfiguration: Release
+  testPattern: 'Tests/TestPromConfigClient/TestPromConfigClient.csproj'
 
 
 trigger:
@@ -43,6 +44,13 @@ steps:
   inputs:
     command: build
     projects: $(projectFile)
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: Test
+  inputs:
+    command: test 
+    projects: $(testPattern)
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
