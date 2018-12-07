@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Text;
+﻿using System.Net.Http;
 using Newtonsoft.Json.Linq;
 
 namespace HttpHandlersTest
@@ -17,7 +13,13 @@ namespace HttpHandlersTest
         /// exemple: /api/route correspond à la règle /api/route/15?age=15#tableau
         /// Si non défini alors la règle s'applique à toutes les routes
         /// </summary>
-        public string Message { get; set; }
+        public string MessageText { get; set; }
+
+        /// <summary>
+        /// Message envoyé sous forme de structure json
+        /// MessageText est ignoré si MessageJson est défini.
+        /// </summary>
+        public JToken MessageJson { get; set; }
 
         /// <summary>
         /// Liste des méthodes possibles de la requete

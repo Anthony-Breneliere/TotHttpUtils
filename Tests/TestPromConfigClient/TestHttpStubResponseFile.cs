@@ -1,22 +1,14 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections;
-using System.IO;
-using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
-using IMAUtils.Extension;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NLog;
 using NLog.Extensions.Logging;
-using NLog.Web;
 using PromConfig;
 using Xunit;
 using PromConfigClient;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
-using HttpDiskCache;
-using Newtonsoft.Json;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 using System.Collections.Generic;
 using System.Net;
@@ -70,7 +62,7 @@ namespace TestPromConfigClient
             {
                 new RequestResponseRule()
                 {
-                    ResponseMessage = new HttpResponse() {Content = promScopeList.JsonFlat(), StatusCode = HttpStatusCode.Accepted}
+                    ResponseMessage = new HttpResponse() {ContentJson = JToken.FromObject( promScopeList ), StatusCode = HttpStatusCode.Accepted}
                 }
             };
 

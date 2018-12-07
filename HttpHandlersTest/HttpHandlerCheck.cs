@@ -1,16 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using IMAUtils.Extension;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
-using Utils;
 
 namespace HttpHandlersTest
 {

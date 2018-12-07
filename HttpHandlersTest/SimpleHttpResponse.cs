@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Text;
+﻿using System.Net;
 using Newtonsoft.Json.Linq;
 
 namespace HttpHandlersTest
@@ -16,6 +13,13 @@ namespace HttpHandlersTest
         /// Si non défini alors la règle s'applique à toutes les routes
         /// </summary>
         public string Content { get; set; }
+
+
+        /// <summary>
+        /// exemple: /api/route/15?age=15#tableau
+        /// Si non défini alors la règle s'applique à toutes les routes
+        /// </summary>
+        public JToken ContentJson { get; set; }
 
         /// <summary>
         /// Mettre vrai si RequestPathAndQuery est une regexp

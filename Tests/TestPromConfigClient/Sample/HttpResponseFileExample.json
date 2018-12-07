@@ -22,7 +22,7 @@
       /* RequestMessage: si défini le message doit être égal au content de la requête
      Les messages en json sont parsés avant d'être comparées. */
       "RequestMessage": {
-        "Message": null,
+        "MessageText": null,
         "Methods": [
           {
             "Method": "PUT"
@@ -32,7 +32,7 @@
 
       /* RequestMessage: réponse retournée en cas de match de la requete, avec le code status */
       "ResponseMessage": {
-        "Content": "Ne faites rien",
+        "ContentText": "Ne faites rien",
         "StatusCode": 202
       }
     },
@@ -40,11 +40,11 @@
       "RequestPathAndQuery": "recherche/trouve",
       "RequestIsRegex": false,
       "RequestMessage": {
-        "Message": "{\r\n  \"message\": \"Ce message est doit être identique dans la règle.\"\r\n}",
+        "MessageJson": { "message": "Ce message est doit être identique dans la règle" },
         "Methods": null
       },
       "ResponseMessage": {
-        "Content": "Ne faites rien",
+        "ContentText": "Ne faites rien",
         "StatusCode": 202
       }
     },
@@ -53,7 +53,7 @@
       "RequestIsRegex": false,
       "RequestMessage": null,
       "ResponseMessage": {
-        "Content": "Lavez-vous la bouche merci bien",
+        "ContentText": "Lavez-vous la bouche merci bien",
         "StatusCode": 202
       }
     },
@@ -62,7 +62,7 @@
       "RequestIsRegex": false,
       "RequestMessage": null,
       "ResponseMessage": {
-        "Content": "Ca sent le poisson",
+        "ContentText": "Ca sent le poisson",
         "StatusCode": 202
       }
     },
@@ -71,7 +71,7 @@
       "RequestIsRegex": true,
       "RequestMessage": null,
       "ResponseMessage": {
-        "Content": "Ne faites rien",
+        "ContentText": "Ne faites rien",
         "StatusCode": 300
       }
     },
@@ -80,7 +80,7 @@
       "RequestIsRegex": true,
       "RequestMessage": null,
       "ResponseMessage": {
-        "Content": "Lavez-vous la bouche merci bien",
+        "ContentText": "Lavez-vous la bouche merci bien",
         "StatusCode": 202
       }
     }

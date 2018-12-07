@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Net;
+﻿using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -10,7 +6,6 @@ using System.Threading.Tasks;
 using IMAUtils.Extension;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using Utils;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -69,13 +64,20 @@ namespace HttpHandlersTest
                     else if (uriPathAndQuery.Contains(rule.RequestPathAndQuery))
                         foundRule = rule;
 
-
-                    // dans le cas où un message est défini 
-
-                    if (!string.IsNullOrEmpty(rule.RequestMessage?.Message))
+                    if (rule.RequestMessage != null)
                     {
+                        var reqMessageRule = rule.RequestMessage;
                         var requestMessage = request.Content != null ? await request.Content.ReadAsStringAsync() : null;
-                        foundRule = CompareMessages(requestMessage, rule.RequestMessage.Message) ? rule : null;
+
+                        if (null != reqMessageRule.MessageJson)
+                            // dans le cas où un message json est défini 
+                            foundRule = CompareMessages(requestMessage, reqMessageRule.MessageJson ) ? rule : null;
+
+                        else if (!string.IsNullOrEmpty(reqMessageRule.MessageText))
+
+                            // dans le cas où un message texte est défini 
+                            foundRule = CompareMessages(requestMessage, reqMessageRule.MessageText) ? rule : null;
+
                     }
 
                     // on vérifie que la règle s'applique à la méthode http
@@ -90,9 +92,15 @@ namespace HttpHandlersTest
 
                     else
                     {
+                        var httpResponse = foundRule.ResponseMessage;
                         response = new HttpResponseMessage()
                         {
-                            Content = new StringContent(foundRule.ResponseMessage.Content ?? ""),
+                            // par défaut on prend le contenu json si défini, ou bien le contenu string
+                            Content = new StringContent(
+                                httpResponse.ContentJson != null && httpResponse.ContentJson.HasValues ?
+                                httpResponse.ContentJson.ToString() :
+                                httpResponse.Content ?? "", Encoding.UTF8,
+                                httpResponse.ContentJson != null ? "application/json" : "text/plain" ),
                             StatusCode = foundRule.ResponseMessage.StatusCode
                         };
 
@@ -118,6 +126,23 @@ namespace HttpHandlersTest
 
             return response;
         }
+
+
+        private static bool CompareMessages(string requestMessage, JToken ruleMessageJson)
+        {
+            JToken jsonRequest;
+            try
+            {
+                jsonRequest = JToken.Parse(requestMessage ?? "");
+            }
+            catch (JsonReaderException e)
+            {
+                return false;
+            }
+
+            return JToken.DeepEquals(jsonRequest, ruleMessageJson);
+        }
+
 
         private static bool CompareMessages(string requestMessage, string ruleMessage)
         {
@@ -217,10 +242,13 @@ namespace HttpHandlersTest
 
         protected override void Dispose(bool disposing)
         {
-            if (this._watcher != null)
+            if (disposing && this._watcher != null)
+            {
                 _watcher.EnableRaisingEvents = false;
+                _watcher.Dispose();
+            }
 
-            base.Dispose();
+            base.Dispose(disposing);
         }
     }
 

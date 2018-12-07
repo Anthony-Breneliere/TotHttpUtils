@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Newtonsoft.Json.Linq;
-
-namespace HttpHandlersTest
+﻿namespace HttpHandlersTest
 {
     /// <summary>
     /// Règle d'association d'un message de réponse pour une requete et/ou un message donné

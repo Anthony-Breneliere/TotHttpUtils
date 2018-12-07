@@ -1,16 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections;
-using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using IMAUtils.Extension;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NLog;
 using NLog.Extensions.Logging;
-using NLog.Web;
 using PromConfig;
 using Xunit;
 using PromConfigClient;

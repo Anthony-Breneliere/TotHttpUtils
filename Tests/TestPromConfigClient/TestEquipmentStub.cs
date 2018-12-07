@@ -1,27 +1,18 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using IMAUtils.Extension;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NLog;
 using NLog.Extensions.Logging;
-using NLog.Web;
-using PromConfig;
 using Xunit;
-using PromConfigClient;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
-using HttpDiskCache;
-using Newtonsoft.Json;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Threading;
 using HttpHandlersTest;
 using Newtonsoft.Json.Linq;
 
@@ -50,7 +41,7 @@ namespace TestPromConfigClient
                     .AddLogging(lb => { lb.AddNLog().SetMinimumLevel(LogLevel.Trace); })
 
                     // ajout du messages handler qui intercepte les appels 
-                    .AddSingleton<HttpHandlerStub>()
+                    .AddScoped<HttpHandlerStub>()
 
                     .AddHttpClient("Toto") // on s'en fiche car les appels sont bouchonnés
 
@@ -68,7 +59,7 @@ namespace TestPromConfigClient
                 new RequestResponseRule()
                 {
                     RequestPathAndQuery = "quune/requete",
-                    ResponseMessage = new HttpResponse() { StatusCode = HttpStatusCode.OK }
+                    ResponseMessage = new HttpResponse { StatusCode = HttpStatusCode.OK }
                 }
             };
                 
@@ -78,14 +69,14 @@ namespace TestPromConfigClient
                 {
                     RequestPathAndQuery = @".*/pascelui/la",
                     RequestIsRegex = true,
-                    ResponseMessage = new HttpResponse() {Content = "Ne faites rien", StatusCode = HttpStatusCode.Ambiguous}
+                    ResponseMessage = new HttpResponse {Content = "Ne faites rien", StatusCode = HttpStatusCode.Ambiguous}
                 },
 
                 new RequestResponseRule
                 {
                     RequestPathAndQuery = @".*/ca/vous/en/bouche/un/couin\?rire=sansdent",
                     RequestIsRegex = true,
-                    ResponseMessage = new HttpResponse() {Content = "Lavez-vous la bouche merci bien", StatusCode = HttpStatusCode.Accepted}
+                    ResponseMessage = new HttpResponse {Content = "Lavez-vous la bouche merci bien", StatusCode = HttpStatusCode.Accepted}
                 }
             };
 
@@ -96,21 +87,50 @@ namespace TestPromConfigClient
                 {
                     RequestPathAndQuery = @"recherche/trouve",
                     RequestIsRegex = false,
-                    ResponseMessage = new HttpResponse() {Content = "Ne faites rien", StatusCode = HttpStatusCode.Accepted}
+                    ResponseMessage = new HttpResponse {Content = "Ne faites rien", StatusCode = HttpStatusCode.Accepted}
                 },
 
                 new RequestResponseRule
                 {
                     RequestPathAndQuery = @"recherche/trouve/recherche/trouve",
                     RequestIsRegex = false,
-                    ResponseMessage = new HttpResponse() {Content = "Lavez-vous la bouche merci bien", StatusCode = HttpStatusCode.Accepted}
+                    ResponseMessage = new HttpResponse {Content = "Lavez-vous la bouche merci bien", StatusCode = HttpStatusCode.Accepted}
                 },
 
                 new RequestResponseRule
                 {
                     RequestPathAndQuery = @"ca/vous/en/bouche/un/couin",
                     RequestIsRegex = false,
-                    ResponseMessage = new HttpResponse() {Content = "Ca sent le poisson", StatusCode = HttpStatusCode.Accepted}
+                    ResponseMessage = new HttpResponse {Content = "Ca sent le poisson", StatusCode = HttpStatusCode.Accepted}
+                },
+
+                new RequestResponseRule
+                {
+                    RequestPathAndQuery = @"chante/moi/du/json",
+                    RequestIsRegex = false,
+                    RequestMessage = new SimpleHttpRequest()
+                    {
+                        MessageJson = new JObject
+                        {
+                            ["Titre"] = "Ta ta yo yo",
+                            ["Paroles"] = new JObject
+                            {
+                                ["Question"] = "Qu'est-ce qu'il y a sous ton grand chapeau"
+                            }
+                        }
+                    },
+                    ResponseMessage = new HttpResponse
+                    {
+                        ContentJson = new JObject
+                        {
+                            ["Titre"] = "Ta ta yo yo",
+                            ["Paroles"] = new JObject
+                            {
+                                ["Reponse"] = "Dans ma tête il y a des tas d'oiseaux"
+                            }
+                        },
+                        StatusCode = HttpStatusCode.Accepted
+                    }
                 }
             };
         }
@@ -173,7 +193,7 @@ namespace TestPromConfigClient
             var httpStub = serviceProvider.GetRequiredService<HttpHandlerStub>();
             httpStub.ResponseRules = _basicResponseRule;
             var messageRule = new JObject {["message"] = "Ce message est doit être identique dans la règle."};
-            httpStub.ResponseRules[0].RequestMessage = new SimpleHttpRequest() { Message = messageRule.ToString() };
+            httpStub.ResponseRules[0].RequestMessage = new SimpleHttpRequest() { MessageText = messageRule.ToString() };
             log.LogDebug(httpStub.ResponseRules.Json());
 
 
@@ -214,6 +234,60 @@ namespace TestPromConfigClient
 
 
         [Fact]
+        public async Task TestBasicResponseFileWithJsonContent()
+        {
+            // arrange
+            var httpClientToto = serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("Toto");
+            var httpStub = serviceProvider.GetRequiredService<HttpHandlerStub>();
+            httpStub.ResponseRules = _basicResponseRule;
+
+            // act
+            var response = await httpClientToto.SendAsync(new HttpRequestMessage()
+            {
+                Content = new StringContent(httpStub.ResponseRules[3].RequestMessage.MessageJson.JsonFlat()),
+                RequestUri = new Uri("http://chocacao:10000/chante/moi/du/json", UriKind.Absolute)
+            });
+            var jsonResponse = JToken.Parse(await response.Content.ReadAsStringAsync());
+
+            // assert
+            jsonResponse.Should().BeEquivalentTo(httpStub.ResponseRules[3].ResponseMessage.ContentJson);
+        }
+
+
+        [Fact]
+        public async Task TestResponseFileNotExists()
+        {
+            // arrange
+            var httpClientToto = serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("Toto");
+            var httpStub = serviceProvider.GetRequiredService<HttpHandlerStub>();
+
+            // act
+            Func<Task<string>> action = async () =>
+            {
+                httpStub.ResponseJsonFile = "FichierSansExistance.json";
+                return await httpClientToto.GetStringAsync("http://lolololocalhost:654/recherche/trouve/rien");
+            };
+
+            // assert
+            await Assert.ThrowsAsync<FileNotFoundException>(action);
+        }
+
+        [Fact]
+        public async Task TestNoRule()
+        {
+            // arrange
+            var httpClientToto = serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("Toto");
+            var httpStub = serviceProvider.GetRequiredService<HttpHandlerStub>();
+
+            // act
+            Func<Task<string>> action = async () => await httpClientToto.GetStringAsync("http://lolololocalhost:654/recherche/trouve/rien");
+
+            // assert
+            await Assert.ThrowsAsync<HttpRequestException> (action);
+        }
+
+
+        [Fact]
         public async Task TestBasicResponseFile()
         {
             // arrange
@@ -228,7 +302,6 @@ namespace TestPromConfigClient
             // assert
             response.Should().Be(httpStub.ResponseRules[0].ResponseMessage.Content);
         }
-
 
 
         [Fact]
