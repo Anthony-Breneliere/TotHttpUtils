@@ -52,7 +52,7 @@ namespace HttpDiskCache
             // en cas d'erreur du web service, on retourne les données en cache
             catch( Exception e )
             {
-                e.logMic( log, "Erreur de récupération de la configuration de la prom");
+                e.log( log, "Erreur de récupération de la configuration de la prom");
 
                 if (null != readFileAsyncTask)
                 {
@@ -92,7 +92,7 @@ namespace HttpDiskCache
             }
             catch (Exception e)
             {
-                e.logMic(log, $"Erreur lors de la mise à jour du fichier cache {fileName}");
+                e.log(log, $"Erreur lors de la mise à jour du fichier cache {fileName}");
             }
         }
 

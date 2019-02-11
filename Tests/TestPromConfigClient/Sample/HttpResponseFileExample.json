@@ -32,7 +32,7 @@
 
       /* RequestMessage: réponse retournée en cas de match de la requete, avec le code status */
       "ResponseMessage": {
-        "ContentText": "Ne faites rien",
+        "Content": "Ne faites rien",
         "StatusCode": 202
       }
     },
@@ -44,7 +44,7 @@
         "Methods": null
       },
       "ResponseMessage": {
-        "ContentText": "Ne faites rien",
+        "Content": "Ne faites rien",
         "StatusCode": 202
       }
     },
@@ -53,7 +53,7 @@
       "RequestIsRegex": false,
       "RequestMessage": null,
       "ResponseMessage": {
-        "ContentText": "Lavez-vous la bouche merci bien",
+        "Content": "Lavez-vous la bouche merci bien",
         "StatusCode": 202
       }
     },
@@ -62,7 +62,7 @@
       "RequestIsRegex": false,
       "RequestMessage": null,
       "ResponseMessage": {
-        "ContentText": "Ca sent le poisson",
+        "Content": "Ca sent le poisson",
         "StatusCode": 202
       }
     },
@@ -71,7 +71,7 @@
       "RequestIsRegex": true,
       "RequestMessage": null,
       "ResponseMessage": {
-        "ContentText": "Ne faites rien",
+        "Content": "Ne faites rien",
         "StatusCode": 300
       }
     },
@@ -80,7 +80,7 @@
       "RequestIsRegex": true,
       "RequestMessage": null,
       "ResponseMessage": {
-        "ContentText": "Lavez-vous la bouche merci bien",
+        "Content": "Lavez-vous la bouche merci bien",
         "StatusCode": 202
       }
     }

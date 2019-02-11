@@ -1,0 +1,68 @@
+# HttpLoadBalancer nuget pipeline
+
+# Author: Anthony Brenelière
+
+# Design time variables requirement:
+# nugetFeeds : name of the nuget repository used for restore and for pushing empacked package
+# buildConfiguration : Debug / Release / or other conf defined in your project
+
+resources:
+- repo: self
+
+queue:
+  name: PIC POOL
+
+variables:
+  projectDir: HttpLoadBalancer
+  projectFile: $(projectDir)/HttpLoadBalancer.csproj
+  nugetFeeds: IMAProtectFeeds
+  buildConfiguration: Release
+  testPattern: 'Tests/TestHttpLoadBalancer/TestHttpLoadBalancer.csproj'
+
+
+trigger:
+
+  branches:
+    include:
+    - master
+
+  paths:
+    include:
+    - HttpLoadBalancer/*   # <= does not work with variables 25/10/18
+
+steps:
+
+- task: DotNetCoreCLI@2
+  displayName: Restore
+  inputs:
+    command: restore
+    projects: $(projectFile)
+    feedRestore: $(nugetFeeds)
+
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: build
+    projects: $(projectFile)
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: Test
+  inputs:
+    command: test 
+    projects: $(testPattern)
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: Pack
+  inputs:
+    command: pack
+    packagesToPack: $(projectFile)
+    include-symbols : true
+    no-build: true
+
+- task: DotNetCoreCLI@2
+  displayName: Push
+  inputs:
+    command: push
+    feedPublish: $(nugetFeeds)

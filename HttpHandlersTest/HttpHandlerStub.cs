@@ -14,10 +14,18 @@ using Newtonsoft.Json;
 namespace HttpHandlersTest
 {
     /// <summary>
-    /// Bouchon d'accès au service équipement
+    /// Bouchon pour un client HTTP
     /// Pour qu'il soit actif, une des propriétés suivantes doivent être renseignées:
     /// - ResponseJsonFile : chemin vers le fichier de config (les changement du fichier sont observés)
     /// - ResponseRules : règles de réponses aux requêtes (automatiquement défini si un ResponseJsonFile est fourni)
+    ///
+    /// Exemple d'utilisation répondant Accepted à toutes les requêtes vers Toto:
+    /// serviceCollection
+    /// .AddHttpClient("Toto")
+    /// .AddHttpMessageHandler(() => new HttpHandlerStub(LogFactory.Create(_output )) {
+    ///     ResponseRules = new HttpResponse() { StatusCode = HttpStatusCode.Accepted}
+    /// })
+    /// 
     /// </summary>
     public class HttpHandlerStub : DelegatingHandler
     {

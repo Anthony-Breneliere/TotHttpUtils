@@ -13,12 +13,15 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 using System.Collections.Generic;
 using System.Net;
+using Divergic.Logging.Xunit;
 using HttpHandlersTest;
 using Newtonsoft.Json.Linq;
+using Xunit.Abstractions;
+using LogFactory = Divergic.Logging.Xunit.LogFactory;
 
 namespace TestPromConfigClient
 {
-    public class TestHttpStubResponseFile
+    public class TestHttpHandlerStub
     {
         private IServiceProvider serviceProvider;
 
@@ -30,15 +33,19 @@ namespace TestPromConfigClient
 
         private readonly List<RequestResponseRule> _justeOneRequest;
 
-        public TestHttpStubResponseFile()
+        private ITestOutputHelper _output;
+
+        public TestHttpHandlerStub( ITestOutputHelper output )
         {
-            LogManager.LoadConfiguration("nlog.config");
+            // LogManager.LoadConfiguration("nlog.config");
+
+            _output = output;
 
             // Ajout du client prom config
             serviceProvider =
                 new ServiceCollection()
 
-                    .AddLogging(lb => { lb.AddNLog().SetMinimumLevel(LogLevel.Trace); })
+                    .AddLogging(lb => { lb.AddNLog().AddProvider( new TestOutputLoggerProvider(output) ).SetMinimumLevel(LogLevel.Trace); })
 
                     // ajout du messages handler qui intercepte les appels 
                     .AddScoped<HttpHandlerStub>()
@@ -338,6 +345,35 @@ namespace TestPromConfigClient
         }
 
 
+        [Fact]
+        public async Task TestJustRequestUriWithDedicatedHandler()
+        {
+            // arrange
 
+            // Ajout du client prom config
+            var serviceProviderWithDedicatedGandler =
+                new ServiceCollection()
+
+                    .AddLogging(lb => { lb.AddNLog().SetMinimumLevel(LogLevel.Trace); })
+
+                    .AddHttpClient("Toto") // on s'en fiche car les appels sont bouchonnés
+
+                    // le http handler qui intercepte les appels
+                    .AddHttpMessageHandler( () => new HttpHandlerStub( LogFactory.Create(_output ))
+                    {
+                        ResponseRules = _justeOneRequest
+                    })
+
+                    .Services
+                    .BuildServiceProvider();
+
+            var httpClientToto = serviceProviderWithDedicatedGandler.GetRequiredService<IHttpClientFactory>().CreateClient("Toto");
+
+            // act
+            var response = await httpClientToto.GetAsync("http://lolololocalhost:654/ya/quune/requete/mon/pote");
+
+            // assert
+            response.StatusCode.Should().Be(_justeOneRequest[0].ResponseMessage.StatusCode);
+        }
     }
 }
