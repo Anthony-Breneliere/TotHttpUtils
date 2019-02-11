@@ -34,7 +34,7 @@ namespace TestPromConfigClient
                     .AddLogging(lb => { lb.AddNLog().SetMinimumLevel(LogLevel.Trace); })
 
                     // ajout du messages handler qui intercepte les appels 
-                    .AddScoped<HttpHandlerStub>()
+                    .AddSingleton<HttpHandlerStub>()
 
                     .AddPromConfigHttpClient(clientEquip => { })
 

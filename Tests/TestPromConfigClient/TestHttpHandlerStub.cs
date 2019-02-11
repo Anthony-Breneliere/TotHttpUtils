@@ -48,7 +48,7 @@ namespace TestPromConfigClient
                     .AddLogging(lb => { lb.AddNLog().AddProvider( new TestOutputLoggerProvider(output) ).SetMinimumLevel(LogLevel.Trace); })
 
                     // ajout du messages handler qui intercepte les appels 
-                    .AddScoped<HttpHandlerStub>()
+                    .AddSingleton<HttpHandlerStub>()
 
                     .AddHttpClient("Toto") // on s'en fiche car les appels sont bouchonnés
 
