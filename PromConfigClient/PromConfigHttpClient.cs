@@ -12,10 +12,10 @@ namespace PromConfigClient
     public class PromConfigHttpClient
     {
         private ILogger log;
-
-        private HttpClient _httpClientEquipment;
+        private IHttpClientFactory _httpClientFactory;
 
         public string EquipmentClientName { get; set; }
+
 
         public string EquipmentUri { get; set; } = "http://trucmuche/"; // il en faut une par défaut pour construire HttpRequestMessage
 
@@ -23,8 +23,7 @@ namespace PromConfigClient
 
         public PromConfigHttpClient( IHttpClientFactory hf, ILoggerFactory lf )
         {
-            _httpClientEquipment = hf.CreateClient( typeof(PromConfigHttpClient).Name );
-            _httpClientEquipment.DefaultRequestHeaders.Add("Accept", "application/json");
+            _httpClientFactory = hf;
 
             log = lf.CreateLogger<PromConfigHttpClient>();
         }
@@ -41,14 +40,16 @@ namespace PromConfigClient
 
             // construction de la requête
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, promConfigUrl);
-            HttpResponseMessage response = null;
+            HttpResponseMessage response = null;          
 
             //  request.SetPolicyExecutionContext(new Polly.Context() { ["Operation"] = promConfigOperation });
 
             // récupération de la configuration
             try
             {
-                response = await _httpClientEquipment.SendAsync(request);
+                var httpClientEquipment = _httpClientFactory.CreateClient(typeof(PromConfigHttpClient).Name);
+                httpClientEquipment.DefaultRequestHeaders.Add("Accept", "application/json");
+                response = await httpClientEquipment.SendAsync(request);
             }
             catch ( Exception e)
             {
