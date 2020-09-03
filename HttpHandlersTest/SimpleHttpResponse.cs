@@ -29,7 +29,7 @@ namespace HttpHandlersTest
         /// <summary>
         /// Mettre vrai si RequestPathAndQuery est une regexp
         /// </summary>
-        public HttpStatusCode StatusCode { get; set; } = HttpStatusCode.Accepted;
+        public HttpStatusCode StatusCode { get; set; } = HttpStatusCode.OK;
 
     }
 }
