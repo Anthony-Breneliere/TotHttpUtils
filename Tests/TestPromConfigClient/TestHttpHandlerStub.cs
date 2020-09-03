@@ -50,7 +50,7 @@ namespace TestPromConfigClient
                     // ajout du messages handler qui intercepte les appels 
                     .AddSingleton<HttpHandlerStub>()
 
-                    .AddHttpClient("Toto") // on s'en fiche car les appels sont bouchonnés
+                    .AddHttpClient("Toto") // on s'en fiche car les appels sont bouchonnÃ©s
 
                     // le http handler qui intercepte les appels
                     .AddHttpMessageHandler<HttpHandlerStub>()
@@ -133,7 +133,7 @@ namespace TestPromConfigClient
                             ["Titre"] = "Ta ta yo yo",
                             ["Paroles"] = new JObject
                             {
-                                ["Reponse"] = "Dans ma tête il y a des tas d'oiseaux"
+                                ["Reponse"] = "Dans ma tÃªte il y a des tas d'oiseaux"
                             }
                         },
                         StatusCode = HttpStatusCode.Accepted
@@ -182,7 +182,7 @@ namespace TestPromConfigClient
             var httpClientToto = serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("Toto");
             var httpStub = serviceProvider.GetRequiredService<HttpHandlerStub>();
             httpStub.ResponseRules = _basicResponseRule;
-            // la règle n'accepte que les message PUT
+            // la rÃ¨gle n'accepte que les message PUT
             httpStub.ResponseRules[0].RequestMessage = new SimpleHttpRequest() { Methods = new[] {HttpMethod.Put} };
 
             // act
@@ -199,7 +199,7 @@ namespace TestPromConfigClient
             var httpClientToto = serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("Toto");
             var httpStub = serviceProvider.GetRequiredService<HttpHandlerStub>();
             httpStub.ResponseRules = _basicResponseRule;
-            var messageRule = new JObject {["message"] = "Ce message est doit être identique dans la règle."};
+            var messageRule = new JObject {["message"] = "Ce message est doit Ãªtre identique dans la rÃ¨gle."};
             httpStub.ResponseRules[0].RequestMessage = new SimpleHttpRequest() { MessageText = messageRule.ToString() };
             log.LogDebug(httpStub.ResponseRules.Json());
 
@@ -211,7 +211,7 @@ namespace TestPromConfigClient
             // assert
             await Assert.ThrowsAsync<HttpRequestException>(postBad);
 
-            // act => cette fois avec le bon message dans la requête post
+            // act => cette fois avec le bon message dans la requÃªte post
             var postGood = httpClientToto.PostAsync("http://lolololocalhost:654/recherche/trouve/rien",
                 new StringContent(messageRule.ToString()));
             var response = await (await postGood).Content.ReadAsStringAsync();
@@ -331,7 +331,7 @@ namespace TestPromConfigClient
 
             // arrange
 
-            // écriture du fichier pour mettre à jour les règles
+            // Ã©criture du fichier pour mettre Ã  jour les rÃ¨gles
             File.WriteAllText("EquipementrulesWatch.json", _basicResponseRule.Json());
 
             // attente car on ne gouverne pas l'attente du file watch
@@ -356,7 +356,7 @@ namespace TestPromConfigClient
 
                     .AddLogging(lb => { lb.AddNLog().SetMinimumLevel(LogLevel.Trace); })
 
-                    .AddHttpClient("Toto") // on s'en fiche car les appels sont bouchonnés
+                    .AddHttpClient("Toto") // on s'en fiche car les appels sont bouchonnÃ©s
 
                     // le http handler qui intercepte les appels
                     .AddHttpMessageHandler( () => new HttpHandlerStub( LogFactory.Create(_output ))
