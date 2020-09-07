@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.IO;
+using System.Net;
 using Newtonsoft.Json.Linq;
 
 namespace HttpHandlersTest
@@ -14,6 +15,10 @@ namespace HttpHandlersTest
         /// </summary>
         public string Content { get; set; }
 
+        /// <summary>
+        /// La réponse est envoyée sous la forme d'un stream
+        /// </summary>
+        public Stream ContentStream { get; set; }
 
         /// <summary>
         /// exemple: /api/route/15?age=15#tableau
@@ -24,7 +29,7 @@ namespace HttpHandlersTest
         /// <summary>
         /// Mettre vrai si RequestPathAndQuery est une regexp
         /// </summary>
-        public HttpStatusCode StatusCode { get; set; }
+        public HttpStatusCode StatusCode { get; set; } = HttpStatusCode.OK;
 
     }
 }
