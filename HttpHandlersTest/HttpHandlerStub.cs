@@ -21,7 +21,7 @@ namespace HttpHandlersTest
     ///
     /// Exemple d'utilisation répondant Accepted à toutes les requêtes vers Toto:
     /// serviceCollection
-    /// .AddHttpClient("Toto")
+    /// .AddHttpClient("Toto", c => c.BaseAddress = new Uri("http://mocked"))
     /// .AddHttpMessageHandler(sp => new HttpHandlerStub(sp.GetRequiredService<ILoggerFactory>()) {
     ///     ResponseRules = new List<RequestResponseRule>() { new RequestResponseRule(){ ResponseMessage = new HttpResponse(){ StatusCode = HttpStatusCode.Accepted } } }
     /// })
