@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using IMAUtils.Extension;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace HttpLoadBalancer
 {
     /// <summary>
+    /// <![CDATA[
     /// Handler jouant le rôle de loadBalancer actif/passif. En cas d'échech la requête est envoyée sur le serveur de backup
     /// 
     /// Exemple d'utilisation du handler:
@@ -33,8 +30,8 @@ namespace HttpLoadBalancer
     /// {
     ///     client.BaseAddress = new Uri("http://172.22.69.130:8443");
     /// })
+    /// ]]>
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     public class HttpHandlerClientBackup : DelegatingHandler
     {
         private ILogger log;
@@ -53,6 +50,13 @@ namespace HttpLoadBalancer
         /// </summary>
         private string _nextBackupHttpClientName;
 
+        /// <summary>
+        /// Constructeur
+        /// </summary>
+        /// <param name="nextBackupHttpClientName"></param>
+        /// <param name="hf"></param>
+        /// <param name="lf"></param>
+        /// <exception cref="Exception"></exception>
         public HttpHandlerClientBackup(string nextBackupHttpClientName, IHttpClientFactory hf, ILoggerFactory lf )
         {
             if ( string.IsNullOrEmpty(nextBackupHttpClientName))
@@ -65,6 +69,12 @@ namespace HttpLoadBalancer
         }
 
 
+        /// <summary>
+        /// Implémentation de SendAsync pour l'httpHandler de HttpLoadBalancer
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             HttpResponseMessage response = null;
@@ -142,6 +152,11 @@ namespace HttpLoadBalancer
         }
 
 
+        /// <summary>
+        /// Un HttpRequestMessage ne peut être envoyé deux fois, ils faut donc pouvoir le cloner
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
         public static async Task<HttpRequestMessage> CloneHttpRequestMessageAsync(HttpRequestMessage req)
         {
             HttpRequestMessage clone = new HttpRequestMessage(req.Method, new Uri(req.RequestUri.PathAndQuery, UriKind.Relative));
@@ -173,8 +188,14 @@ namespace HttpLoadBalancer
         }
 
 
+        /// <summary>
+        /// Classe d'option contentn l'identifiant du client Http
+        /// </summary>
         public class Options
         {
+            /// <summary>
+            /// Nom de l'identifiant de l'http client
+            /// </summary>
             public string HttpClientIdentifier { get; set; }
         }
 

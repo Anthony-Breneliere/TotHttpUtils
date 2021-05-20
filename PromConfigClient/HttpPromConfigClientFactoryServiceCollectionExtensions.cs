@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Net.Http;
-using HttpDiskCache;
 using Microsoft.Extensions.Logging;
 
 namespace PromConfigClient

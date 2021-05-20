@@ -1,7 +1,7 @@
 ﻿using IMAUtils.Extension;
-using Microsoft.AspNetCore.Http;
 using Moq;
 using System.IO;
+using Microsoft.AspNetCore.Http;
 
 namespace HttpHandlersTest
 {

@@ -6,18 +6,15 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using IMAUtils.Extension;
 using Microsoft.Extensions.Logging;
-using NLog;
-using NLog.Extensions.Logging;
 using Xunit;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
-using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 using System.Collections.Generic;
 using System.Net;
-using Divergic.Logging.Xunit;
 using HttpHandlersTest;
 using Newtonsoft.Json.Linq;
+using Serilog;
+using Serilog.Sinks.InMemory;
 using Xunit.Abstractions;
-using LogFactory = Divergic.Logging.Xunit.LogFactory;
 
 namespace TestPromConfigClient
 {
@@ -45,7 +42,7 @@ namespace TestPromConfigClient
             serviceProvider =
                 new ServiceCollection()
 
-                    .AddLogging(lb => { lb.AddNLog().AddProvider( new TestOutputLoggerProvider(output) ).SetMinimumLevel(LogLevel.Trace); })
+                    .AddLogging( lb => lb.AddSerilog( new LoggerConfiguration().MinimumLevel.Verbose().WriteTo.TestOutput(output).WriteTo.InMemory().CreateLogger()) )
 
                     // ajout du messages handler qui intercepte les appels 
                     .AddSingleton<HttpHandlerStub>()
@@ -351,15 +348,15 @@ namespace TestPromConfigClient
             // arrange
 
             // Ajout du client prom config
-            var serviceProviderWithDedicatedGandler =
+            var serviceProviderWithDedicatedHandler =
                 new ServiceCollection()
 
-                    .AddLogging(lb => { lb.AddNLog().SetMinimumLevel(LogLevel.Trace); })
+                    .AddLogging( lb => lb.AddSerilog( new LoggerConfiguration().MinimumLevel.Verbose().WriteTo.TestOutput(_output).WriteTo.InMemory().CreateLogger()) )
 
                     .AddHttpClient("Toto") // on s'en fiche car les appels sont bouchonnés
 
                     // le http handler qui intercepte les appels
-                    .AddHttpMessageHandler( () => new HttpHandlerStub( LogFactory.Create(_output ))
+                    .AddHttpMessageHandler( sp => new HttpHandlerStub( sp.GetRequiredService<ILoggerFactory>() )
                     {
                         ResponseRules = _justeOneRequest
                     })
@@ -367,7 +364,7 @@ namespace TestPromConfigClient
                     .Services
                     .BuildServiceProvider();
 
-            var httpClientToto = serviceProviderWithDedicatedGandler.GetRequiredService<IHttpClientFactory>().CreateClient("Toto");
+            var httpClientToto = serviceProviderWithDedicatedHandler.GetRequiredService<IHttpClientFactory>().CreateClient("Toto");
 
             // act
             var response = await httpClientToto.GetAsync("http://lolololocalhost:654/ya/quune/requete/mon/pote");
