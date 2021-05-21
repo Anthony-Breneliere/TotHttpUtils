@@ -16,6 +16,7 @@ namespace HttpDiskCache
         /// <summary>
         /// Ecriture du cache
         /// </summary>
+        /// <param name="cacheName">Nom unique du cache</param>
         /// <param name="newContent">Le contenu</param>
         /// <returns></returns>
         Task WriteToCache(string cacheName, string newContent);

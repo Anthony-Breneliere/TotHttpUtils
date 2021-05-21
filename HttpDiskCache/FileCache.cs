@@ -4,10 +4,17 @@ using Microsoft.Extensions.Logging;
 
 namespace HttpDiskCache
 {
+    /// <summary>
+    /// Implementation d'un cache par des fichiers
+    /// </summary>
     public class FileCache : ICache
     {
         private ILogger log;
 
+        /// <summary>
+        /// Constructeur
+        /// </summary>
+        /// <param name="lf"></param>
         public FileCache( ILoggerFactory lf )
         {
             log = lf.CreateLogger<FileCache>();
@@ -34,7 +41,8 @@ namespace HttpDiskCache
         /// <summary>
         /// Write to cache a local file
         /// </summary>
-        /// <param name="newContent"></param>
+        /// <param name="fileName">Nom du fichier</param>
+        /// <param name="newContent">Contenu du fichier</param>
         /// <returns></returns>
         public async Task WriteToCache(string fileName, string newContent)
         {

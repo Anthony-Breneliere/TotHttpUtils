@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 namespace HttpHandlersTest
 {
     /// <summary>
+    /// <![CDATA[
     /// Bouchon pour un client HTTP
     /// Pour qu'il soit actif, une des propriétés suivantes doivent être renseignées:
     /// - ResponseJsonFile : chemin vers le fichier de config (les changement du fichier sont observés)
@@ -25,7 +26,7 @@ namespace HttpHandlersTest
     /// .AddHttpMessageHandler(sp => new HttpHandlerStub(sp.GetRequiredService<ILoggerFactory>()) {
     ///     ResponseRules = new List<RequestResponseRule>() { new RequestResponseRule(){ ResponseMessage = new HttpResponse(){ StatusCode = HttpStatusCode.Accepted } } }
     /// })
-    /// 
+    /// ]]>
     /// </summary>
     public class HttpHandlerStub : DelegatingHandler
     {
@@ -33,11 +34,18 @@ namespace HttpHandlersTest
 
         private FileSystemWatcher _watcher;
 
+        /// <summary>
+        /// Réponses configurées pour chaque requête
+        /// </summary>
         public List<RequestResponseRule> ResponseRules { get; set; } = new List<RequestResponseRule>();
 
+        /// <summary>
+        /// Constructeur
+        /// </summary>
+        /// <param name="lf"></param>
         public HttpHandlerStub(ILoggerFactory lf)
         {
-            log = lf.CreateLogger(typeof(HttpHandlerStub).FullName);
+            log = lf.CreateLogger<HttpHandlerStub>();
 
         }
 
@@ -143,7 +151,7 @@ namespace HttpHandlersTest
             {
                 jsonRequest = JToken.Parse(requestMessage ?? "");
             }
-            catch (JsonReaderException e)
+            catch (JsonReaderException)
             {
                 return false;
             }
@@ -160,7 +168,7 @@ namespace HttpHandlersTest
                 jsonRequest = JToken.Parse(requestMessage);
                 jsonRule = JToken.Parse(ruleMessage);
             }
-            catch (JsonReaderException e)
+            catch (JsonReaderException)
             {
                 return requestMessage == ruleMessage;
             }

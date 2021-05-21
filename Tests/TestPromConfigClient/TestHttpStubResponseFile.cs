@@ -3,17 +3,17 @@ using System;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using NLog;
-using NLog.Extensions.Logging;
 using PromConfig;
 using Xunit;
 using PromConfigClient;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
-using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 using System.Collections.Generic;
 using System.Net;
 using HttpHandlersTest;
 using Newtonsoft.Json.Linq;
+using Serilog;
+using Serilog.Sinks.InMemory;
+using Xunit.Abstractions;
 
 namespace TestPromConfigClient
 {
@@ -23,15 +23,13 @@ namespace TestPromConfigClient
 
         private ILogger log;
 
-        public TestEquipmentStub()
+        public TestEquipmentStub( ITestOutputHelper output )
         {
-            LogManager.LoadConfiguration("nlog.config");
-
             // Ajout du client prom config
             serviceProvider =
                 new ServiceCollection()
 
-                    .AddLogging(lb => { lb.AddNLog().SetMinimumLevel(LogLevel.Trace); })
+                    .AddLogging( lb => lb.AddSerilog( new LoggerConfiguration().MinimumLevel.Verbose().WriteTo.TestOutput(output).WriteTo.InMemory().CreateLogger()) )
 
                     // ajout du messages handler qui intercepte les appels 
                     .AddSingleton<HttpHandlerStub>()

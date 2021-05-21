@@ -15,12 +15,20 @@ namespace HttpDiskCache
     /// </summary>
     public class CachedRequestHttpHandler : DelegatingHandler
     {
+        /// <summary>
+        /// Nom du dossier contenant le fiches http
+        /// </summary>
         public static string CacheDir { get; } = "httpCache";
 
         private ILogger log;
 
         private ICache _cache;
 
+        /// <summary>
+        /// Constructeur
+        /// </summary>
+        /// <param name="lf"></param>
+        /// <param name="cache"></param>
         public CachedRequestHttpHandler(ILoggerFactory lf, ICache cache )
         {
             log = lf.CreateLogger<CachedRequestHttpHandler>();
@@ -28,11 +36,17 @@ namespace HttpDiskCache
             _cache = cache;
         }
 
+        /// <summary>
+        /// Implémentation de SendAsync pour CachedRequestHttpHandler
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken )
         {
-
-        // envoi de la requête au serveur
-        Task<HttpResponseMessage> sendAsyncTask = base.SendAsync(request, cancellationToken);
+            // envoi de la requête au serveur
+            Task<HttpResponseMessage> sendAsyncTask = base.SendAsync(request, cancellationToken);
 
             // le nom du fichier est le nom de l'opération de la requête
             var fileName = $"{CacheDir}/{request.RequestUri.AbsolutePath.Split('/').Last()}.json";

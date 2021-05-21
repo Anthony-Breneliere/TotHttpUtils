@@ -5,17 +5,17 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using IMAUtils.Extension;
 using Microsoft.Extensions.Logging;
-using NLog;
-using NLog.Extensions.Logging;
 using PromConfig;
 using Xunit;
 using PromConfigClient;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 using HttpDiskCache;
 using Newtonsoft.Json;
-using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 using System.Collections.Generic;
 using HttpHandlersTest;
+using Serilog;
+using Serilog.Sinks.InMemory;
+using Xunit.Abstractions;
 
 namespace TestPromConfigClient
 {
@@ -25,16 +25,14 @@ namespace TestPromConfigClient
 
         private ILogger log;
 
-        public TestCachedRequestHttpHandler()
+        public TestCachedRequestHttpHandler( ITestOutputHelper output )
         {
-            LogManager.LoadConfiguration("nlog.config");
-            
             // Ajout du client prom config
             serviceProvider =
                 new ServiceCollection()
 
-                    .AddLogging(lb => { lb.AddNLog().SetMinimumLevel( LogLevel.Trace); })
-
+                    .AddLogging( lb => lb.AddSerilog( new LoggerConfiguration().MinimumLevel.Verbose().WriteTo.TestOutput(output).WriteTo.InMemory().CreateLogger()) )
+                
                     // ajout du messages handler qui intercepte les appels 
                     .AddScoped<HttpHandlerCheck>()
 
@@ -56,7 +54,7 @@ namespace TestPromConfigClient
                     // le http handler qui intercepte les appels
                     .AddHttpMessageHandler<HttpHandlerCheck>()
 
-                    // le message handler testé
+                    // le message handler test
                     .AddHttpMessageHandler<CachedRequestHttpHandler>()
 
                     .Services

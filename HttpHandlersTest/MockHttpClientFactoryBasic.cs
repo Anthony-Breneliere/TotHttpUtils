@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Moq;
+﻿using Moq;
 using System;
 using System.Net.Http;
 
@@ -23,6 +22,7 @@ namespace HttpHandlersTest
     public class MockHttpClientFactoryBasic
     {
         public MockHttpMessageHandler HttpMessageHandler;
+        
         public Mock<IHttpClientFactory> HttpClientFactory;
 
         public MockHttpClientFactoryBasic()

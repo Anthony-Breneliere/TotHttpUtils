@@ -14,6 +14,10 @@ namespace HttpHandlersTest
     {
         private static ILogger log;
 
+        /// <summary>
+        /// Constructeur
+        /// </summary>
+        /// <param name="lf"></param>
         public HttpHandlerCheck(ILoggerFactory lf)
         {
             log = lf.CreateLogger(typeof(HttpHandlerCheck).FullName);
